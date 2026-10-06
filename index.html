@@ -386,7 +386,7 @@
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        // 1. FIREBASE CONFIGURATION (YOUR PROVIDED CREDENTIALS)
+        // FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyAOflulCdvjiQwW_0Vp17tXBMJS4I7ie10",
             authDomain: "monitoring-d2b49.firebaseapp.com",
@@ -431,11 +431,9 @@
                     Object.keys(data).forEach(key => {
                         monitoringLogs.push({ id: key, ...data[key] });
                     });
-                    // Sort Terbaru di Atas
                     monitoringLogs.sort((a, b) => b.timestamp - a.timestamp);
                 }
                 
-                // Save Backup to LocalStorage
                 localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
                 
                 updateDashboardCounts();
@@ -539,8 +537,8 @@
             return `${dayName}, ${dayNum} ${monthName} ${year}`;
         }
 
-        // IMAGE COMPRESSION HELPER
-        function compressImage(file, maxWidth = 800, quality = 0.6) {
+        // ULTRA FAST IMAGE COMPRESSION (PROSES KURANG DARI 1 DETIK)
+        function compressImage(file, maxWidth = 500, quality = 0.4) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -567,7 +565,7 @@
             });
         }
 
-        // MONITORING FORM SUBMISSION (FIREBASE SYNC)
+        // MONITORING FORM SUBMISSION (INSTANT FIREBASE SYNC)
         async function handleSaveMonitoring(e) {
             e.preventDefault();
             if (currentUser.role !== 'ADMIN') {
@@ -577,7 +575,7 @@
 
             const btnSubmit = document.getElementById('btn-submit');
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Menyimpan Online...`;
+            btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Memproses Foto...`;
             lucide.createIcons();
 
             try {
@@ -589,8 +587,12 @@
                 const fileDok = document.getElementById('input-foto-dokumen').files[0];
                 const fileSpeed = document.getElementById('input-foto-speed').files[0];
 
+                // Kompresi super cepat & ringan
                 const base64Dok = await compressImage(fileDok);
                 const base64Speed = await compressImage(fileSpeed);
+
+                btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Mengirim ke Cloud...`;
+                lucide.createIcons();
 
                 const newLogData = {
                     unit,
@@ -603,11 +605,11 @@
                     created_by: currentUser.username
                 };
 
-                // Push to Firebase Realtime Database
+                // Push ke Firebase
                 await logsRef.push(newLogData);
 
                 document.getElementById('form-monitoring').reset();
-                alert('Laporan berhasil disimpan dan disinkronkan ke Cloud Online!');
+                alert('Laporan berhasil tersimpan online!');
                 switchTab('history');
             } catch (err) {
                 alert('Gagal menyimpan ke server cloud: ' + err.message);
