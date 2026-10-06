@@ -44,7 +44,7 @@
                     <h1 class="text-xs sm:text-sm font-bold text-slate-100 tracking-tight leading-tight">YAYASAN INSAN CINTA BAKTI</h1>
                     <div class="flex items-center gap-1.5 mt-0.5">
                         <span id="cloud-status-indicator" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <p id="cloud-status-text" class="text-[10px] text-emerald-300 font-semibold">Online Sync Active</p>
+                        <p id="cloud-status-text" class="text-[10px] text-emerald-300 font-semibold">Ultra-Fast Online Sync</p>
                     </div>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                         </div>
                         <div>
                             <h3 class="text-sm font-bold text-slate-800">Form Input Monitoring Baru</h3>
-                            <p class="text-[11px] text-slate-400">Data otomatis langsung tersimpan ke Cloud Firebase</p>
+                            <p class="text-[11px] text-slate-400">Data dikompresi otomatis agar terikirim kilat</p>
                         </div>
                     </div>
 
@@ -209,7 +209,7 @@
                         </div>
 
                         <button type="submit" id="btn-submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition flex items-center justify-center gap-2">
-                            <i data-lucide="cloud-upload" class="w-4 h-4"></i> Simpan Laporan Online
+                            <i data-lucide="zap" class="w-4 h-4"></i> Simpan Kilat (Online)
                         </button>
                     </form>
                 </div>
@@ -537,8 +537,8 @@
             return `${dayName}, ${dayNum} ${monthName} ${year}`;
         }
 
-        // ULTRA FAST IMAGE COMPRESSION (PROSES KURANG DARI 1 DETIK)
-        function compressImage(file, maxWidth = 500, quality = 0.4) {
+        // ULTRA FAST & LIGHTWEIGHT IMAGE COMPRESSION (LEBAR MAX 300PX, JPEG 30%)
+        function compressImage(file, maxWidth = 300, quality = 0.3) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -575,7 +575,7 @@
 
             const btnSubmit = document.getElementById('btn-submit');
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Memproses Foto...`;
+            btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Memproses Super Cepat...`;
             lucide.createIcons();
 
             try {
@@ -587,12 +587,9 @@
                 const fileDok = document.getElementById('input-foto-dokumen').files[0];
                 const fileSpeed = document.getElementById('input-foto-speed').files[0];
 
-                // Kompresi super cepat & ringan
+                // Kompresi super cepat (~15-30KB per foto)
                 const base64Dok = await compressImage(fileDok);
                 const base64Speed = await compressImage(fileSpeed);
-
-                btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Mengirim ke Cloud...`;
-                lucide.createIcons();
 
                 const newLogData = {
                     unit,
@@ -605,17 +602,16 @@
                     created_by: currentUser.username
                 };
 
-                // Push ke Firebase
+                // Push ke Firebase (Sangat cepat / instan)
                 await logsRef.push(newLogData);
 
                 document.getElementById('form-monitoring').reset();
-                alert('Laporan berhasil tersimpan online!');
                 switchTab('history');
             } catch (err) {
                 alert('Gagal menyimpan ke server cloud: ' + err.message);
             } finally {
                 btnSubmit.disabled = false;
-                btnSubmit.innerHTML = `<i data-lucide="cloud-upload" class="w-4 h-4"></i> Simpan Laporan Online`;
+                btnSubmit.innerHTML = `<i data-lucide="zap" class="w-4 h-4"></i> Simpan Kilat (Online)`;
                 lucide.createIcons();
             }
         }
@@ -701,7 +697,6 @@
             if (confirm('Apakah Anda yakin ingin menghapus laporan ini?')) {
                 try {
                     await logsRef.child(idStr).remove();
-                    alert('Laporan berhasil dihapus dari Cloud.');
                 } catch (err) {
                     alert('Gagal menghapus data: ' + err.message);
                 }
@@ -713,7 +708,6 @@
             if (confirm('PERINGATAN: Seluruh riwayat data monitoring akan dihapus permanen dari Cloud Database. Lanjutkan?')) {
                 try {
                     await logsRef.remove();
-                    alert('Semua laporan berhasil dihapus.');
                 } catch (err) {
                     alert('Gagal mengosongkan data: ' + err.message);
                 }
