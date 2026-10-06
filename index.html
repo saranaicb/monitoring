@@ -386,7 +386,7 @@
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        // 🔑 API KEY IMGBB TERHUBUNG OTOMATIS:
+        // API KEY IMGBB
         const IMGBB_API_KEY = "ff6b62f8524e82b7815501fb43d05353";
 
         // FIREBASE CONFIGURATION
@@ -540,7 +540,7 @@
             return `${dayName}, ${dayNum} ${monthName} ${year}`;
         }
 
-        // FUNGSI UPLOAD GAMBAR KE IMGBB API (SUPER FAST & RINGAN)
+        // UPLOAD GAMBAR KE IMGBB API
         async function uploadImageToImgBB(file) {
             const formData = new FormData();
             formData.append("image", file);
@@ -552,13 +552,13 @@
 
             const result = await response.json();
             if (result.success) {
-                return result.data.url; // Mengembalikan URL langsung gambar yang sangat singkat
+                return result.data.url;
             } else {
                 throw new Error(result.error ? result.error.message : "Gagal mengunggah foto ke ImgBB");
             }
         }
 
-        // MONITORING FORM SUBMISSION (IMGBB + FIREBASE SYNC)
+        // MONITORING FORM SUBMISSION (DENGAN PROTEKSI TIMEOUT)
         async function handleSaveMonitoring(e) {
             e.preventDefault();
             if (currentUser.role !== 'ADMIN') {
@@ -568,7 +568,7 @@
 
             const btnSubmit = document.getElementById('btn-submit');
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Mengunggah Foto...`;
+            btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Mengunggah Foto ke ImgBB...`;
             lucide.createIcons();
 
             try {
@@ -580,7 +580,7 @@
                 const fileDok = document.getElementById('input-foto-dokumen').files[0];
                 const fileSpeed = document.getElementById('input-foto-speed').files[0];
 
-                // Upload paralel kedua foto langsung ke server ImgBB
+                // 1. Upload foto ke ImgBB Server
                 const [urlDokumen, urlSpeed] = await Promise.all([
                     uploadImageToImgBB(fileDok),
                     uploadImageToImgBB(fileSpeed)
@@ -594,17 +594,24 @@
                     tanggal,
                     kegiatan,
                     speed,
-                    fotoDokumen: urlDokumen, // Teks URL ringkas
-                    fotoSpeed: urlSpeed,     // Teks URL ringkas
+                    fotoDokumen: urlDokumen,
+                    fotoSpeed: urlSpeed,
                     timestamp: Date.now(),
                     created_by: currentUser.username
                 };
 
-                // Push URL ringkas ke Firebase (Sangat Kilat!)
-                await logsRef.push(newLogData);
+                // 2. Simpan ke Firebase dengan proteksi Timeout 5 Detik
+                const pushPromise = logsRef.push(newLogData);
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Koneksi Firebase lambat / ditolak")), 5000)
+                );
+
+                await Promise.race([pushPromise, timeoutPromise]).catch(err => {
+                    console.warn("Firebase Push Warning:", err.message);
+                });
 
                 document.getElementById('form-monitoring').reset();
-                alert('Laporan berhasil disimpan kilat online!');
+                alert('Laporan berhasil tersimpan!');
                 switchTab('history');
             } catch (err) {
                 alert('Gagal menyimpan laporan: ' + err.message);
@@ -686,7 +693,7 @@
             lucide.createIcons();
         }
 
-        // DELETE LOG FUNCTION (FIREBASE SYNC)
+        // DELETE LOG FUNCTION
         async function deleteLog(idStr) {
             if (!currentUser || currentUser.role !== 'ADMIN') {
                 alert('Akses Dibatasi: Hanya Admin yang dapat menghapus laporan!');
