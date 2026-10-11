@@ -174,14 +174,42 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Monitoring *</label>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Laporan *</label>
                                 <input type="date" id="input-tanggal" required class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                        </div>
+
+                        <!-- SECTION TAMBAHAN: PELAKSANAAN PEKERJAAN & TUKANG -->
+                        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3">
+                            <span class="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+                                <i data-lucide="hard-hat" class="w-4 h-4"></i> Detail Pekerjaan & Tenaga Kerja
+                            </span>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tenaga Kerja / Tukang <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                                <input type="text" id="input-tukang" placeholder="Nama tukang / tim pelaksana (misal: Pak Budi, Tim IT)"
+                                    class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Mulai</label>
+                                    <input type="date" id="input-tgl-mulai" onchange="calculateDuration()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Selesai</label>
+                                    <input type="date" id="input-tgl-selesai" onchange="calculateDuration()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Durasi (Otomatis)</label>
+                                    <input type="text" id="input-durasi" readonly placeholder="0 Hari" class="w-full px-3 py-2 text-xs font-bold text-emerald-700 rounded-xl border border-slate-200 bg-emerald-50/50">
+                                </div>
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Uraian / Detail Kegiatan *</label>
-                            <textarea id="input-kegiatan" rows="2.5" required placeholder="Jelaskan kegiatan monitoring yang telah dilaksanakan..."
+                            <textarea id="input-kegiatan" rows="2.5" required placeholder="Jelaskan kegiatan monitoring atau pengerjaan yang telah dilaksanakan..."
                                 class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
                         </div>
 
@@ -256,9 +284,9 @@
                 </div>
 
                 <!-- FORMAL PRINTABLE REPORT PAPER -->
-                <div class="bg-white rounded-2xl p-4 sm:p-10 border border-slate-300 shadow-lg text-slate-900 max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl p-4 sm:p-10 border border-slate-300 shadow-lg text-slate-900 max-w-5xl mx-auto">
                     <div class="text-center mb-6 border-b pb-4 border-slate-300">
-                        <h2 class="text-base sm:text-lg font-extrabold uppercase underline tracking-wider">LAPORAN HASIL MONITORING UNIT</h2>
+                        <h2 class="text-base sm:text-lg font-extrabold uppercase underline tracking-wider">LAPORAN HASIL MONITORING & PEKERJAAN UNIT</h2>
                         <p class="text-xs font-bold text-slate-700 mt-1">YAYASAN INSAN CINTA BAKTI</p>
                         <p id="report-period-text" class="text-[11px] text-slate-500 mt-0.5">Dicetak Secara Otomatis Melalui Sistem Portal Monitoring</p>
                     </div>
@@ -268,11 +296,12 @@
                             <thead>
                                 <tr class="bg-slate-100 text-slate-800 font-bold uppercase text-[10px]">
                                     <th class="border-b border-r border-slate-300 p-2.5 text-center w-8">No</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[120px]">Hari & Tanggal</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[100px]">Unit</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[180px]">Detail Kegiatan</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 text-center min-w-[70px]">Speed</th>
-                                    <th class="border-b border-slate-300 p-2.5 text-center min-w-[150px]">Foto Kegiatan & Speed</th>
+                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[100px]">Tanggal</th>
+                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[90px]">Unit</th>
+                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[160px]">Detail Kegiatan</th>
+                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[120px]">Tenaga Kerja / Durasi</th>
+                                    <th class="border-b border-r border-slate-300 p-2.5 text-center min-w-[60px]">Speed</th>
+                                    <th class="border-b border-slate-300 p-2.5 text-center min-w-[130px]">Foto Kegiatan</th>
                                 </tr>
                             </thead>
                             <tbody id="report-table-body"></tbody>
@@ -413,7 +442,6 @@
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        // URL GOOGLE APPS SCRIPT ANDA
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzB4hCEgw3bzi15eDc4VTIpOflfVu3nAnrBKNffNCQJeDKqJ3K5fa9K3p8P_WsN7RtxwQ/exec";
         const IMGBB_API_KEY = "ff6b62f8524e82b7815501fb43d05353";
         const SECURITY_PIN = "070707";
@@ -434,6 +462,29 @@
                 fetchFromGoogleSheets();
             }
         });
+
+        function calculateDuration() {
+            const startStr = document.getElementById('input-tgl-mulai').value;
+            const endStr = document.getElementById('input-tgl-selesai').value;
+            const outputField = document.getElementById('input-durasi');
+
+            if (startStr && endStr) {
+                const startDate = new Date(startStr);
+                const endDate = new Date(endStr);
+                const diffTime = endDate - startDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                if (diffDays > 0) {
+                    outputField.value = `${diffDays} Hari`;
+                } else if (diffDays === 0) {
+                    outputField.value = `1 Hari`;
+                } else {
+                    outputField.value = "Tanggal tidak valid";
+                }
+            } else {
+                outputField.value = "";
+            }
+        }
 
         async function fetchFromGoogleSheets() {
             try {
@@ -588,6 +639,10 @@
             try {
                 const unit = document.getElementById('input-unit').value;
                 const tanggal = document.getElementById('input-tanggal').value;
+                const tukang = document.getElementById('input-tukang').value.trim() || "-";
+                const tglMulai = document.getElementById('input-tgl-mulai').value;
+                const tglSelesai = document.getElementById('input-tgl-selesai').value;
+                const durasi = document.getElementById('input-durasi').value || "-";
                 const kegiatan = document.getElementById('input-kegiatan').value;
                 const speed = document.getElementById('input-speed').value.trim() || "-";
 
@@ -612,6 +667,10 @@
                 const newLogData = {
                     id: 'LOG_' + Date.now(),
                     tanggal,
+                    tglMulai,
+                    tglSelesai,
+                    durasi,
+                    tukang,
                     unit,
                     kegiatan,
                     speed: speed !== "-" ? speed : "-",
@@ -621,11 +680,9 @@
                     timestamp: Date.now()
                 };
 
-                // Save Local Instant
                 monitoringLogs.unshift(newLogData);
                 localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
 
-                // Send to Google Sheets Background
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
                     mode: "no-cors",
@@ -635,6 +692,7 @@
 
                 document.getElementById('form-monitoring').reset();
                 document.getElementById('preview-dokumen-container').innerHTML = '';
+                document.getElementById('input-durasi').value = '';
                 alert('Laporan Berhasil Disimpan!');
                 switchTab('history');
             } catch (err) {
@@ -672,8 +730,6 @@
                 card.className = "bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-3";
 
                 const canDelete = currentUser && currentUser.role === 'ADMIN';
-
-                // Parsing foto dokumen (support multiple photos)
                 const dokPhotos = log.fotoDokumen ? log.fotoDokumen.split(',') : [];
 
                 let photosHTML = '';
@@ -718,14 +774,25 @@
 
                     <p class="text-xs text-slate-700 leading-relaxed font-normal">${log.kegiatan}</p>
 
-                    ${log.speed && log.speed !== '-' ? `
-                        <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl text-xs font-bold w-fit">
-                            <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
-                            <span>Kecepatan: ${log.speed} Mbps</span>
-                        </div>
-                    ` : ''}
+                    <!-- BADGES INFO TUKANG & DURASI -->
+                    <div class="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
+                        ${log.tukang && log.tukang !== '-' ? `
+                            <span class="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1">
+                                <i data-lucide="user" class="w-3 h-3 text-amber-600"></i> ${log.tukang}
+                            </span>
+                        ` : ''}
+                        ${log.durasi && log.durasi !== '-' ? `
+                            <span class="bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3 h-3 text-blue-600"></i> Durasi: ${log.durasi}
+                            </span>
+                        ` : ''}
+                        ${log.speed && log.speed !== '-' ? `
+                            <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1">
+                                <i data-lucide="wifi" class="w-3 h-3 text-emerald-600"></i> ${log.speed} Mbps
+                            </span>
+                        ` : ''}
+                    </div>
 
-                    <!-- TAMPILAN GAMBAR PROPORSIONAL DENGAN ASPECT RATIO NATURAL DAN TERBACA DI HP -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         ${photosHTML}
                     </div>
@@ -759,7 +826,7 @@
             tbody.innerHTML = '';
 
             if (monitoringLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">Tidak ada data untuk dicetak</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-400">Tidak ada data untuk dicetak</td></tr>`;
                 return;
             }
 
@@ -781,6 +848,10 @@
                     <td class="border-r border-slate-200 p-2 font-semibold text-slate-700">${formatDateWithDay(log.tanggal)}</td>
                     <td class="border-r border-slate-200 p-2 font-bold text-slate-800">${log.unit}</td>
                     <td class="border-r border-slate-200 p-2 leading-relaxed text-slate-600">${log.kegiatan}</td>
+                    <td class="border-r border-slate-200 p-2 text-slate-700">
+                        <div><b>Tukang:</b> ${log.tukang || '-'}</div>
+                        <div class="text-[10px] text-slate-500"><b>Durasi:</b> ${log.durasi || '-'}</div>
+                    </td>
                     <td class="border-r border-slate-200 p-2 text-center font-bold text-emerald-600">${log.speed && log.speed !== '-' ? log.speed + ' Mbps' : '-'}</td>
                     <td class="p-2 text-center">
                         <div class="flex items-center justify-center gap-1.5 flex-wrap">
@@ -794,11 +865,12 @@
 
         function exportExcel() {
             if (monitoringLogs.length === 0) return;
-            let csvContent = "data:text/csv;charset=utf-8,No,Tanggal,Unit,Detail Kegiatan,Speed (Mbps)\n";
+            let csvContent = "data:text/csv;charset=utf-8,No,Tanggal,Unit,Detail Kegiatan,Tenaga Kerja,Durasi,Speed (Mbps)\n";
             monitoringLogs.forEach((l, i) => {
                 const cleanKegiatan = `"${l.kegiatan.replace(/"/g, '""')}"`;
+                const cleanTukang = `"${(l.tukang || '-').replace(/"/g, '""')}"`;
                 const spd = l.speed && l.speed !== '-' ? l.speed : '-';
-                csvContent += `${i + 1},"${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},"${spd}"\n`;
+                csvContent += `${i + 1},"${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},${cleanTukang},"${l.durasi || '-'}","${spd}"\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
