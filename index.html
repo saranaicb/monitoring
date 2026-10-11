@@ -34,7 +34,6 @@
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             
-            /* Kontainer utama laporan cetak */
             #print-paper-container {
                 border: none !important;
                 box-shadow: none !important;
@@ -44,7 +43,6 @@
                 max-width: 100% !important;
             }
 
-            /* Memaksa tabel agar muat dalam 1 lebar halaman cetak */
             table {
                 width: 100% !important;
                 table-layout: fixed !important;
@@ -57,12 +55,10 @@
                 overflow-wrap: break-word !important;
             }
 
-            /* Hindari potongan halaman acak di tengah baris tabel */
             tr {
                 page-break-inside: avoid !important;
             }
 
-            /* Optimasi ukuran gambar di dalam cetakan */
             .print-img-thumb {
                 width: 38px !important;
                 height: 38px !important;
@@ -819,10 +815,16 @@
 
                     <p class="text-xs text-slate-700 leading-relaxed font-normal">${log.kegiatan}</p>
 
+                    <!-- BADGES INFO TUKANG, TANGGAL MULAI/SELESAI, DAN DURASI -->
                     <div class="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
                         ${log.tukang && log.tukang !== '-' ? `
                             <span class="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1">
                                 <i data-lucide="user" class="w-3 h-3 text-amber-600"></i> ${log.tukang}
+                            </span>
+                        ` : ''}
+                        ${(log.tglMulai || log.tglSelesai) ? `
+                            <span class="bg-indigo-50 text-indigo-800 border border-indigo-200 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1">
+                                <i data-lucide="calendar-range" class="w-3 h-3 text-indigo-600"></i> ${formatDateWithDay(log.tglMulai)} s/d${formatDateWithDay(log.tglSelesai)}
                             </span>
                         ` : ''}
                         ${log.durasi && log.durasi !== '-' ? `
@@ -894,6 +896,7 @@
                     <td class="border-r border-slate-200 p-2 leading-relaxed text-slate-600">${log.kegiatan}</td>
                     <td class="border-r border-slate-200 p-2 text-slate-700">
                         <div><b>Tukang:</b> ${log.tukang || '-'}</div>
+                        <div class="text-[10px] text-slate-500"><b>Periode:</b> ${formatDateWithDay(log.tglMulai)} - ${formatDateWithDay(log.tglSelesai)}</div>
                         <div class="text-[10px] text-slate-500"><b>Durasi:</b> ${log.durasi || '-'}</div>
                     </td>
                     <td class="border-r border-slate-200 p-2 text-center font-bold text-emerald-600">${log.speed && log.speed !== '-' ? log.speed + ' Mbps' : '-'}</td>
@@ -909,12 +912,12 @@
 
         function exportExcel() {
             if (monitoringLogs.length === 0) return;
-            let csvContent = "data:text/csv;charset=utf-8,No,Tanggal,Unit,Detail Kegiatan,Tenaga Kerja,Durasi,Speed (Mbps)\n";
+            let csvContent = "data:text/csv;charset=utf-8,No,Tanggal,Unit,Detail Kegiatan,Tenaga Kerja,Tgl Mulai,Tgl Selesai,Durasi,Speed (Mbps)\n";
             monitoringLogs.forEach((l, i) => {
                 const cleanKegiatan = `"${l.kegiatan.replace(/"/g, '""')}"`;
                 const cleanTukang = `"${(l.tukang || '-').replace(/"/g, '""')}"`;
                 const spd = l.speed && l.speed !== '-' ? l.speed : '-';
-                csvContent += `${i + 1},"${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},${cleanTukang},"${l.durasi || '-'}","${spd}"\n`;
+                csvContent += `${i + 1},"${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},${cleanTukang},"${formatDateWithDay(l.tglMulai)}","${formatDateWithDay(l.tglSelesai)}","${l.durasi || '-'}","${spd}"\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
