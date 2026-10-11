@@ -400,7 +400,7 @@
 
             <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200">
                 <p class="text-xs font-bold text-slate-800" id="profile-user-text">User: Admin</p>
-                <p class="text-[10px] text-slate-500">Gunakan PIN Keamanan untuk mengubah password atau menambahkan akun baru.</p>
+                <p class="text-[10px] text-slate-500">Gunakan PIN Keamanan untuk mengubah password atau menambahkan akun baru secara online.</p>
             </div>
 
             <div id="pin-step-1" class="space-y-3">
@@ -454,8 +454,8 @@
                             <option value="READER">READER (Pembaca Laporan)</option>
                         </select>
                     </div>
-                    <button onclick="handleCreateUser()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i> Buat Akun Baru
+                    <button onclick="handleCreateUser()" id="btn-create-user" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i> Buat & Sinkronkan Akun
                     </button>
                 </div>
             </div>
@@ -480,16 +480,18 @@
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        // URL GOOGLE APPS SCRIPT BARU ANDA
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKbDnyoMSzyOZuAHeJ34t3Iisi74RNVg-n68FNpPz2zGXrrBNTuIIfQuJR0vHcZXRY/exec";
+        // SCRIPT WEB APP SINKRONISASI ONLINE TERBARU
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgNGNRE8-4BkpwfbUvNn6aeY0LiZ-EkGxJ1bXLZIMDpVsC2JH45GHnttZZVLCdbVTfGQ/exec";
         const IMGBB_API_KEY = "ff6b62f8524e82b7815501fb43d05353";
         const SECURITY_PIN = "070707";
 
-        let users = JSON.parse(localStorage.getItem('YICB_USERS')) || {
+        // DEFAULT AKUN BAWAAN
+        let defaultUsers = {
             'admin': { pass: 'admin', role: 'ADMIN', name: 'Petugas Admin (Sarana)' },
             'icb': { pass: 'wisata', role: 'READER', name: 'Sarana Prasarana (Pembaca)' }
         };
 
+        let users = JSON.parse(localStorage.getItem('YICB_USERS')) || defaultUsers;
         let monitoringLogs = JSON.parse(localStorage.getItem('YICB_LOGS')) || [];
         let currentUser = null;
         let activeTab = 'form';
@@ -529,10 +531,26 @@
             try {
                 document.getElementById('cloud-status-text').textContent = "Syncing Sheets...";
                 const res = await fetch(GOOGLE_SCRIPT_URL);
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    // PEMETAAN SEMUA KOLOM TERMASUK TUKANG, TGL MULAI, TGL SELESAI, DAN DURASI
-                    monitoringLogs = data.map(item => {
+                const responseData = await res.json();
+
+                // 1. PENANGANAN SINKRONISASI AKUN USER SECARA ONLINE
+                if (responseData.users && Array.isArray(responseData.users)) {
+                    responseData.users.forEach(uArr => {
+                        if (Array.isArray(uArr) && uArr[0]) {
+                            users[uArr[0]] = {
+                                pass: String(uArr[1] || ''),
+                                role: uArr[2] || 'READER',
+                                name: uArr[3] || uArr[0]
+                            };
+                        }
+                    });
+                    saveUsersToStorage();
+                }
+
+                // 2. PENANGANAN SINKRONISASI DATA LOG MONITORING
+                const rawLogs = Array.isArray(responseData) ? responseData : (responseData.logs || []);
+                if (Array.isArray(rawLogs)) {
+                    monitoringLogs = rawLogs.map(item => {
                         if (Array.isArray(item)) {
                             return {
                                 id: item[0] || 'LOG_' + Date.now(),
@@ -574,7 +592,7 @@
             const u = document.getElementById('login-username').value.trim();
             const p = document.getElementById('login-password').value.trim();
 
-            if (users[u] && users[u].pass === p) {
+            if (users[u] && String(users[u].pass) === p) {
                 currentUser = { username: u, ...users[u] };
                 document.getElementById('view-login').classList.add('hidden');
                 document.getElementById('view-dashboard').classList.remove('hidden');
@@ -989,7 +1007,7 @@
             document.getElementById('pin-step-2').classList.add('hidden');
         }
 
-        function handleCreateUser() {
+        async function handleCreateUser() {
             const name = document.getElementById('new-user-name').value.trim();
             const u = document.getElementById('new-user-username').value.trim();
             const p = document.getElementById('new-user-password').value.trim();
@@ -1005,13 +1023,39 @@
                 return;
             }
 
+            const btn = document.getElementById('btn-create-user');
+            btn.disabled = true;
+            btn.textContent = 'Menyimpan Akun...';
+
+            // Simpan Lokal
             users[u] = { pass: p, role: role, name: name };
             saveUsersToStorage();
 
-            alert(`Akun baru (${u}) berhasil dibuat!`);
-            document.getElementById('new-user-name').value = '';
-            document.getElementById('new-user-username').value = '';
-            document.getElementById('new-user-password').value = '';
+            // Kirim ke Google Sheets (Sheet: Users)
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        action: "ADD_USER",
+                        username: u,
+                        password: p,
+                        role: role,
+                        name: name
+                    })
+                });
+                alert(`Akun baru (${u}) berhasil dibuat & disinkronkan ke Google Sheets!`);
+                document.getElementById('new-user-name').value = '';
+                document.getElementById('new-user-username').value = '';
+                document.getElementById('new-user-password').value = '';
+            } catch (err) {
+                alert('Akun tersimpan lokal, namun gagal sync ke cloud: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="user-plus" class="w-4 h-4"></i> Buat & Sinkronkan Akun`;
+                lucide.createIcons();
+            }
         }
 
         function updateDashboardCounts() {
