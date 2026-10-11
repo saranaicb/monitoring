@@ -187,20 +187,21 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Internet Speed (Mbps) *</label>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Internet Speed (Mbps) <span class="text-slate-400 font-normal">(Opsional)</span></label>
                                 <div class="relative">
-                                    <input type="number" id="input-speed" required placeholder="Contoh: 50" min="1"
+                                    <input type="number" id="input-speed" placeholder="Contoh: 50" min="0"
                                         class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                     <span class="absolute right-3 top-3 text-[10px] text-slate-400 font-bold">Mbps</span>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Dokumentasi *</label>
-                                <input type="file" id="input-foto-dokumen" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Dokumentasi <span class="text-slate-400 font-normal">(Multi/Opsional)</span></label>
+                                <input type="file" id="input-foto-dokumen" accept="image/*" multiple onchange="previewSelectedPhotos(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                                <div id="preview-dokumen-container" class="flex flex-wrap gap-2 mt-2"></div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Bukti Speedtest *</label>
-                                <input type="file" id="input-foto-speed" accept="image/*" required class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Bukti Speedtest <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                                <input type="file" id="input-foto-speed" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                             </div>
                         </div>
 
@@ -317,10 +318,10 @@
 
     <!-- MODAL POPUPS -->
     <div id="modal-profile" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto hide-scrollbar">
             <div class="flex items-center justify-between border-b pb-3">
                 <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="key" class="w-4 h-4 text-emerald-600"></i> Pengaturan Password
+                    <i data-lucide="user-cog" class="w-4 h-4 text-emerald-600"></i> Pengaturan Akun
                 </h3>
                 <button onclick="closeModal('modal-profile')" class="text-slate-400 hover:text-slate-600">
                     <i data-lucide="x" class="w-5 h-5"></i>
@@ -329,7 +330,7 @@
 
             <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200">
                 <p class="text-xs font-bold text-slate-800" id="profile-user-text">User: Admin</p>
-                <p class="text-[10px] text-slate-500">Anda dapat mengubah password akun aktif melalui PIN keamanan.</p>
+                <p class="text-[10px] text-slate-500">Gunakan PIN Keamanan untuk mengubah password atau menambahkan akun baru.</p>
             </div>
 
             <div id="pin-step-1" class="space-y-3">
@@ -343,15 +344,53 @@
                 </button>
             </div>
 
-            <div id="pin-step-2" class="hidden space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Password Baru</label>
-                    <input type="password" id="input-new-password" placeholder="Masukkan password baru"
-                        class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <div id="pin-step-2" class="hidden space-y-4">
+                <!-- TAB NAV DALAM MODAL ADMIN -->
+                <div class="flex border-b border-slate-200 text-xs font-bold">
+                    <button id="btn-subtab-pass" onclick="switchModalSubtab('pass')" class="py-2 px-3 border-b-2 border-emerald-600 text-emerald-600 w-1/2">Ubah Password</button>
+                    <button id="btn-subtab-adduser" onclick="switchModalSubtab('adduser')" class="py-2 px-3 border-b-2 border-transparent text-slate-400 w-1/2">Tambah Akun</button>
                 </div>
-                <button onclick="saveNewPassword()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition">
-                    Simpan Password Baru
-                </button>
+
+                <!-- SUBSECTION: UBAH PASSWORD -->
+                <div id="subtab-content-pass" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Password Baru</label>
+                        <input type="password" id="input-new-password" placeholder="Masukkan password baru"
+                            class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <button onclick="saveNewPassword()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition">
+                        Simpan Password Baru
+                    </button>
+                </div>
+
+                <!-- SUBSECTION: BUAT AKUN BARU -->
+                <div id="subtab-content-adduser" class="hidden space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap User *</label>
+                        <input type="text" id="new-user-name" placeholder="Contoh: Staf Sarana Wisata"
+                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Username Baru *</label>
+                        <input type="text" id="new-user-username" placeholder="Masukkan username"
+                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Password *</label>
+                        <input type="password" id="new-user-password" placeholder="Masukkan password"
+                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Peran / Role *</label>
+                        <select id="new-user-role" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                            <option value="ADMIN">ADMIN (Penginput Data)</option>
+                            <option value="READER">READER (Pembaca Laporan)</option>
+                        </select>
+                    </div>
+                    <button onclick="handleCreateUser()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i> Buat Akun Baru
+                    </button>
+                </div>
             </div>
 
             <div class="pt-2 border-t">
@@ -501,7 +540,26 @@
             return `${dayName}, ${dayNum} ${monthName} ${year}`;
         }
 
+        function previewSelectedPhotos(event) {
+            const container = document.getElementById('preview-dokumen-container');
+            container.innerHTML = '';
+            const files = event.target.files;
+            if (files) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'w-12 h-12 object-cover rounded-lg border border-slate-300';
+                        container.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
         async function uploadImageToImgBB(file) {
+            if (!file) return "";
             const formData = new FormData();
             formData.append("image", file);
 
@@ -531,15 +589,22 @@
                 const unit = document.getElementById('input-unit').value;
                 const tanggal = document.getElementById('input-tanggal').value;
                 const kegiatan = document.getElementById('input-kegiatan').value;
-                const speed = document.getElementById('input-speed').value;
+                const speed = document.getElementById('input-speed').value.trim() || "-";
 
-                const fileDok = document.getElementById('input-foto-dokumen').files[0];
+                const filesDok = document.getElementById('input-foto-dokumen').files;
                 const fileSpeed = document.getElementById('input-foto-speed').files[0];
 
-                const [urlDokumen, urlSpeed] = await Promise.all([
-                    uploadImageToImgBB(fileDok),
-                    uploadImageToImgBB(fileSpeed)
-                ]);
+                let urlDokumenList = [];
+                if (filesDok && filesDok.length > 0) {
+                    urlDokumenList = await Promise.all(
+                        Array.from(filesDok).map(f => uploadImageToImgBB(f))
+                    );
+                }
+
+                let urlSpeed = "";
+                if (fileSpeed) {
+                    urlSpeed = await uploadImageToImgBB(fileSpeed);
+                }
 
                 btnSubmit.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Menyimpan ke Google Sheets...`;
                 lucide.createIcons();
@@ -549,9 +614,9 @@
                     tanggal,
                     unit,
                     kegiatan,
-                    speed,
-                    fotoDokumen: urlDokumen,
-                    fotoSpeed: urlSpeed,
+                    speed: speed !== "-" ? speed : "-",
+                    fotoDokumen: urlDokumenList.length > 0 ? urlDokumenList.join(',') : '',
+                    fotoSpeed: urlSpeed || '',
                     created_by: currentUser.username,
                     timestamp: Date.now()
                 };
@@ -569,7 +634,8 @@
                 }).catch(err => console.warn("Google Sheet bg save err:", err));
 
                 document.getElementById('form-monitoring').reset();
-                alert('Laporan Berhasil Disimpan ke Google Sheets!');
+                document.getElementById('preview-dokumen-container').innerHTML = '';
+                alert('Laporan Berhasil Disimpan!');
                 switchTab('history');
             } catch (err) {
                 alert('Gagal menyimpan: ' + err.message);
@@ -607,6 +673,36 @@
 
                 const canDelete = currentUser && currentUser.role === 'ADMIN';
 
+                // Parsing foto dokumen (support multiple photos)
+                const dokPhotos = log.fotoDokumen ? log.fotoDokumen.split(',') : [];
+
+                let photosHTML = '';
+                if (dokPhotos.length > 0) {
+                    dokPhotos.forEach((url, idx) => {
+                        photosHTML += `
+                            <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center min-h-[160px]" onclick="openLightbox('${url.trim()}')">
+                                <img src="${url.trim()}" class="w-full h-auto max-h-60 object-contain rounded-xl transition transform group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2.5 pointer-events-none">
+                                    <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Dokumentasi ${dokPhotos.length > 1 ? '#' + (idx + 1) : ''}</span>
+                                    <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                if (log.fotoSpeed) {
+                    photosHTML += `
+                        <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center min-h-[160px]" onclick="openLightbox('${log.fotoSpeed}')">
+                            <img src="${log.fotoSpeed}" class="w-full h-auto max-h-60 object-contain rounded-xl transition transform group-hover:scale-105">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2.5 pointer-events-none">
+                                <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Bukti Speedtest</span>
+                                <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 card.innerHTML = `
                     <div class="flex items-center justify-between border-b pb-2.5">
                         <div class="flex items-center gap-2">
@@ -622,27 +718,16 @@
 
                     <p class="text-xs text-slate-700 leading-relaxed font-normal">${log.kegiatan}</p>
 
-                    <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl text-xs font-bold w-fit">
-                        <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
-                        <span>Kecepatan: ${log.speed} Mbps</span>
-                    </div>
+                    ${log.speed && log.speed !== '-' ? `
+                        <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl text-xs font-bold w-fit">
+                            <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+                            <span>Kecepatan: ${log.speed} Mbps</span>
+                        </div>
+                    ` : ''}
 
-                    <!-- TAMPILAN GAMBAR PROPORSIONAL DAN KELIHATAN JELAS DI HP -->
+                    <!-- TAMPILAN GAMBAR PROPORSIONAL DENGAN ASPECT RATIO NATURAL DAN TERBACA DI HP -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                        <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-900/5" onclick="openLightbox('${log.fotoDokumen}')">
-                            <img src="${log.fotoDokumen}" class="w-full h-48 sm:h-40 object-cover rounded-xl transition transform group-hover:scale-105">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2.5">
-                                <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Foto Dokumentasi</span>
-                                <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
-                            </div>
-                        </div>
-                        <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-900/5" onclick="openLightbox('${log.fotoSpeed}')">
-                            <img src="${log.fotoSpeed}" class="w-full h-48 sm:h-40 object-cover rounded-xl transition transform group-hover:scale-105">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2.5">
-                                <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Bukti Speedtest</span>
-                                <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
-                            </div>
-                        </div>
+                        ${photosHTML}
                     </div>
                 `;
                 container.appendChild(card);
@@ -681,16 +766,25 @@
             monitoringLogs.forEach((log, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-slate-200 hover:bg-slate-50 transition";
+
+                const dokPhotos = log.fotoDokumen ? log.fotoDokumen.split(',') : [];
+                let imgsHTML = '';
+                dokPhotos.forEach(u => {
+                    if (u.trim()) imgsHTML += `<img src="${u.trim()}" onclick="openLightbox('${u.trim()}')" class="w-12 h-12 object-contain bg-slate-900 rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition inline-block"> `;
+                });
+                if (log.fotoSpeed) {
+                    imgsHTML += `<img src="${log.fotoSpeed}" onclick="openLightbox('${log.fotoSpeed}')" class="w-12 h-12 object-contain bg-slate-900 rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition inline-block">`;
+                }
+
                 tr.innerHTML = `
                     <td class="border-r border-slate-200 p-2 text-center font-bold text-slate-500">${idx + 1}</td>
                     <td class="border-r border-slate-200 p-2 font-semibold text-slate-700">${formatDateWithDay(log.tanggal)}</td>
                     <td class="border-r border-slate-200 p-2 font-bold text-slate-800">${log.unit}</td>
                     <td class="border-r border-slate-200 p-2 leading-relaxed text-slate-600">${log.kegiatan}</td>
-                    <td class="border-r border-slate-200 p-2 text-center font-bold text-emerald-600">${log.speed} Mbps</td>
+                    <td class="border-r border-slate-200 p-2 text-center font-bold text-emerald-600">${log.speed && log.speed !== '-' ? log.speed + ' Mbps' : '-'}</td>
                     <td class="p-2 text-center">
-                        <div class="flex items-center justify-center gap-2">
-                            <img src="${log.fotoDokumen}" onclick="openLightbox('${log.fotoDokumen}')" class="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border border-slate-300 shadow-xs cursor-pointer hover:opacity-80 transition">
-                            <img src="${log.fotoSpeed}" onclick="openLightbox('${log.fotoSpeed}')" class="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg border border-slate-300 shadow-xs cursor-pointer hover:opacity-80 transition">
+                        <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                            ${imgsHTML || '-'}
                         </div>
                     </td>
                 `;
@@ -703,7 +797,8 @@
             let csvContent = "data:text/csv;charset=utf-8,No,Tanggal,Unit,Detail Kegiatan,Speed (Mbps)\n";
             monitoringLogs.forEach((l, i) => {
                 const cleanKegiatan = `"${l.kegiatan.replace(/"/g, '""')}"`;
-                csvContent += `${i + 1},"${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},"${l.speed}"\n`;
+                const spd = l.speed && l.speed !== '-' ? l.speed : '-';
+                csvContent += `${i + 1},"${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},"${spd}"\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
@@ -725,6 +820,20 @@
             }
         }
 
+        function switchModalSubtab(subtab) {
+            if (subtab === 'pass') {
+                document.getElementById('subtab-content-pass').classList.remove('hidden');
+                document.getElementById('subtab-content-adduser').classList.add('hidden');
+                document.getElementById('btn-subtab-pass').className = "py-2 px-3 border-b-2 border-emerald-600 text-emerald-600 w-1/2";
+                document.getElementById('btn-subtab-adduser').className = "py-2 px-3 border-b-2 border-transparent text-slate-400 w-1/2";
+            } else {
+                document.getElementById('subtab-content-pass').classList.add('hidden');
+                document.getElementById('subtab-content-adduser').classList.remove('hidden');
+                document.getElementById('btn-subtab-pass').className = "py-2 px-3 border-b-2 border-transparent text-slate-400 w-1/2";
+                document.getElementById('btn-subtab-adduser').className = "py-2 px-3 border-b-2 border-emerald-600 text-emerald-600 w-1/2";
+            }
+        }
+
         function saveNewPassword() {
             const newPass = document.getElementById('input-new-password').value.trim();
             if (newPass.length < 3) return;
@@ -737,6 +846,31 @@
             closeModal('modal-profile');
             document.getElementById('pin-step-1').classList.remove('hidden');
             document.getElementById('pin-step-2').classList.add('hidden');
+        }
+
+        function handleCreateUser() {
+            const name = document.getElementById('new-user-name').value.trim();
+            const u = document.getElementById('new-user-username').value.trim();
+            const p = document.getElementById('new-user-password').value.trim();
+            const role = document.getElementById('new-user-role').value;
+
+            if (!name || !u || !p) {
+                alert('Semua field pembuatan akun wajib diisi!');
+                return;
+            }
+
+            if (users[u]) {
+                alert('Username sudah digunakan! Pilih username lain.');
+                return;
+            }
+
+            users[u] = { pass: p, role: role, name: name };
+            saveUsersToStorage();
+
+            alert(`Akun baru (${u}) berhasil dibuat!`);
+            document.getElementById('new-user-name').value = '';
+            document.getElementById('new-user-username').value = '';
+            document.getElementById('new-user-password').value = '';
         }
 
         function updateDashboardCounts() {
@@ -773,6 +907,7 @@
         }
 
         function openLightbox(src) {
+            if (!src) return;
             document.getElementById('lightbox-img').src = src;
             document.getElementById('modal-lightbox').classList.remove('hidden');
         }
