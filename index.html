@@ -533,7 +533,28 @@
                 const res = await fetch(GOOGLE_SCRIPT_URL);
                 const data = await res.json();
                 if (Array.isArray(data)) {
-                    monitoringLogs = data.sort((a, b) => b.timestamp - a.timestamp);
+                    // MAPPING LENGKAP SEMUA KOLOM TERMASUK TUKANG, TGL MULAI, TGL SELESAI, DAN DURASI
+                    monitoringLogs = data.map(item => {
+                        if (Array.isArray(item)) {
+                            return {
+                                id: item[0] || 'LOG_' + Date.now(),
+                                tanggal: item[1] || '',
+                                tglMulai: item[2] || '',
+                                tglSelesai: item[3] || '',
+                                durasi: item[4] || '-',
+                                tukang: item[5] || '-',
+                                unit: item[6] || '',
+                                kegiatan: item[7] || '',
+                                speed: item[8] || '-',
+                                fotoDokumen: item[9] || '',
+                                fotoSpeed: item[10] || '',
+                                created_by: item[11] || '',
+                                timestamp: item[12] || Date.now()
+                            };
+                        }
+                        return item;
+                    }).sort((a, b) => b.timestamp - a.timestamp);
+
                     localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
                     updateDashboardCounts();
                     renderHistory();
@@ -619,8 +640,10 @@
         }
 
         function formatDateWithDay(dateString) {
-            if (!dateString) return '-';
+            if (!dateString || dateString === '-') return '-';
             const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString; // kembalikan teks biasa jika bukan objek tanggal ISO
+            
             const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -776,15 +799,17 @@
                 let photosHTML = '';
                 if (dokPhotos.length > 0) {
                     dokPhotos.forEach((url, idx) => {
-                        photosHTML += `
-                            <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center min-h-[160px]" onclick="openLightbox('${url.trim()}')">
-                                <img src="${url.trim()}" class="w-full h-auto max-h-60 object-contain rounded-xl transition transform group-hover:scale-105">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2.5 pointer-events-none">
-                                    <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Dokumentasi ${dokPhotos.length > 1 ? '#' + (idx + 1) : ''}</span>
-                                    <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
+                        if (url.trim()) {
+                            photosHTML += `
+                                <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center min-h-[160px]" onclick="openLightbox('${url.trim()}')">
+                                    <img src="${url.trim()}" class="w-full h-auto max-h-60 object-contain rounded-xl transition transform group-hover:scale-105">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2.5 pointer-events-none">
+                                        <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Dokumentasi ${dokPhotos.length > 1 ? '#' + (idx + 1) : ''}</span>
+                                        <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
+                            `;
+                        }
                     });
                 }
 
@@ -822,7 +847,7 @@
                                 <i data-lucide="user" class="w-3 h-3 text-amber-600"></i> ${log.tukang}
                             </span>
                         ` : ''}
-                        ${(log.tglMulai || log.tglSelesai) ? `
+                        ${(log.tglMulai && log.tglMulai !== '-') ? `
                             <span class="bg-indigo-50 text-indigo-800 border border-indigo-200 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1">
                                 <i data-lucide="calendar-range" class="w-3 h-3 text-indigo-600"></i> ${formatDateWithDay(log.tglMulai)} s/d${formatDateWithDay(log.tglSelesai)}
                             </span>
