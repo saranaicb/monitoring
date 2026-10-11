@@ -74,9 +74,8 @@
     <header class="no-print bg-slate-900 text-white sticky top-0 z-40 shadow-md">
         <div class="max-w-md mx-auto sm:max-w-7xl px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center font-bold text-white shadow-lg text-lg">
-                    YICB
-                </div>
+                <!-- LOGO GAMBAR YICB MENGGANTIKAN KOTAK HIJAU -->
+                <img src="https://i.ibb.co/sJdMB87C/image.png" alt="Logo YICB" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-700">
                 <div>
                     <h1 class="text-xs sm:text-sm font-bold text-slate-100 tracking-tight leading-tight">YAYASAN INSAN CINTA BAKTI</h1>
                     <div class="flex items-center gap-1.5 mt-0.5">
@@ -502,15 +501,14 @@
             }
         });
 
-        // FUNGSI UNTUK MENGURUTKAN LOG BERDASARKAN TANGGAL LAPORAN (TERBARU -> TERLAMA)
         function sortLogsByDate(logs) {
             return logs.sort((a, b) => {
                 const dateA = new Date(a.tanggal || 0).getTime();
                 const dateB = new Date(b.tanggal || 0).getTime();
                 if (dateA !== dateB) {
-                    return dateB - dateA; // Urutkan tanggal laporan terbaru di atas
+                    return dateB - dateA;
                 }
-                return (b.timestamp || 0) - (a.timestamp || 0); // Jika tanggal sama, urutkan timestamp terbaru
+                return (b.timestamp || 0) - (a.timestamp || 0);
             });
         }
 
@@ -543,7 +541,6 @@
                 const res = await fetch(GOOGLE_SCRIPT_URL);
                 const responseData = await res.json();
 
-                // 1. SINKRONISASI AKUN USER ONLINE
                 if (responseData.users && Array.isArray(responseData.users)) {
                     responseData.users.forEach(uArr => {
                         if (Array.isArray(uArr) && uArr[0]) {
@@ -557,7 +554,6 @@
                     saveUsersToStorage();
                 }
 
-                // 2. SINKRONISASI DATA LOG MONITORING
                 const rawLogs = Array.isArray(responseData) ? responseData : (responseData.logs || []);
                 if (Array.isArray(rawLogs)) {
                     const parsedLogs = rawLogs.map(item => {
@@ -581,7 +577,6 @@
                         return item;
                     });
 
-                    // PENGURUTAN OTOMATIS BERDASARKAN TANGGAL LAPORAN TERBARU
                     monitoringLogs = sortLogsByDate(parsedLogs);
 
                     localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
@@ -773,7 +768,6 @@
                     timestamp: Date.now()
                 };
 
-                // MASUKKAN DATA LALU URUTKAN KEMBALI SECARA OTOMATIS BERDASARKAN TANGGAL
                 monitoringLogs.unshift(newLogData);
                 monitoringLogs = sortLogsByDate(monitoringLogs);
                 localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
@@ -1042,11 +1036,9 @@
             btn.disabled = true;
             btn.textContent = 'Menyimpan Akun...';
 
-            // Simpan Lokal
             users[u] = { pass: p, role: role, name: name };
             saveUsersToStorage();
 
-            // Kirim ke Google Sheets (Sheet: Users)
             try {
                 await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
