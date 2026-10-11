@@ -18,11 +18,56 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* ATURAN CSS OTOMATIS FIT PAGE SAAT DICETAK/PDF */
         @media print {
-            body { background: white !important; color: black !important; }
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 10pt !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            .page-break { page-break-after: always; }
+            
+            /* Kontainer utama laporan cetak */
+            #print-paper-container {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* Memaksa tabel agar muat dalam 1 lebar halaman cetak */
+            table {
+                width: 100% !important;
+                table-layout: fixed !important;
+                font-size: 8.5pt !important;
+                border-collapse: collapse !important;
+            }
+            th, td {
+                padding: 4px 6px !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+
+            /* Hindari potongan halaman acak di tengah baris tabel */
+            tr {
+                page-break-inside: avoid !important;
+            }
+
+            /* Optimasi ukuran gambar di dalam cetakan */
+            .print-img-thumb {
+                width: 38px !important;
+                height: 38px !important;
+                object-fit: contain !important;
+            }
         }
         .print-only { display: none; }
     </style>
@@ -284,40 +329,40 @@
                 </div>
 
                 <!-- FORMAL PRINTABLE REPORT PAPER -->
-                <div class="bg-white rounded-2xl p-4 sm:p-10 border border-slate-300 shadow-lg text-slate-900 max-w-5xl mx-auto">
-                    <div class="text-center mb-6 border-b pb-4 border-slate-300">
+                <div id="print-paper-container" class="bg-white rounded-2xl p-4 sm:p-8 border border-slate-300 shadow-lg text-slate-900 w-full max-w-5xl mx-auto">
+                    <div class="text-center mb-4 border-b pb-3 border-slate-300">
                         <h2 class="text-base sm:text-lg font-extrabold uppercase underline tracking-wider">LAPORAN HASIL MONITORING & PEKERJAAN UNIT</h2>
-                        <p class="text-xs font-bold text-slate-700 mt-1">YAYASAN INSAN CINTA BAKTI</p>
-                        <p id="report-period-text" class="text-[11px] text-slate-500 mt-0.5">Dicetak Secara Otomatis Melalui Sistem Portal Monitoring</p>
+                        <p class="text-xs font-bold text-slate-700 mt-0.5">YAYASAN INSAN CINTA BAKTI</p>
+                        <p id="report-period-text" class="text-[10px] text-slate-500 mt-0.5">Dicetak Secara Otomatis Melalui Sistem Portal Monitoring</p>
                     </div>
 
-                    <div class="overflow-x-auto mb-8 rounded-xl border border-slate-300">
+                    <div class="overflow-x-auto mb-6 rounded-xl border border-slate-300">
                         <table class="w-full text-left text-xs border-collapse">
                             <thead>
-                                <tr class="bg-slate-100 text-slate-800 font-bold uppercase text-[10px]">
-                                    <th class="border-b border-r border-slate-300 p-2.5 text-center w-8">No</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[100px]">Tanggal</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[90px]">Unit</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[160px]">Detail Kegiatan</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 min-w-[120px]">Tenaga Kerja / Durasi</th>
-                                    <th class="border-b border-r border-slate-300 p-2.5 text-center min-w-[60px]">Speed</th>
-                                    <th class="border-b border-slate-300 p-2.5 text-center min-w-[130px]">Foto Kegiatan</th>
+                                <tr class="bg-slate-100 text-slate-800 font-bold uppercase text-[9px] sm:text-[10px]">
+                                    <th class="border-b border-r border-slate-300 p-2 text-center" style="width: 5%;">No</th>
+                                    <th class="border-b border-r border-slate-300 p-2" style="width: 14%;">Tanggal</th>
+                                    <th class="border-b border-r border-slate-300 p-2" style="width: 12%;">Unit</th>
+                                    <th class="border-b border-r border-slate-300 p-2" style="width: 28%;">Detail Kegiatan</th>
+                                    <th class="border-b border-r border-slate-300 p-2" style="width: 17%;">Tenaga Kerja / Durasi</th>
+                                    <th class="border-b border-r border-slate-300 p-2 text-center" style="width: 9%;">Speed</th>
+                                    <th class="border-b border-slate-300 p-2 text-center" style="width: 15%;">Foto Kegiatan</th>
                                 </tr>
                             </thead>
                             <tbody id="report-table-body"></tbody>
                         </table>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 sm:gap-8 text-center text-xs pt-4 border-t border-slate-200">
+                    <div class="grid grid-cols-2 gap-4 text-center text-xs pt-2 border-t border-slate-200">
                         <div>
-                            <p class="text-slate-500 mb-1 border-b pb-1 inline-block">Petugas Sarana Prasarana</p>
-                            <div class="h-16"></div>
+                            <p class="text-slate-500 mb-1 border-b pb-0.5 inline-block">Petugas Sarana Prasarana</p>
+                            <div class="h-12"></div>
                             <p class="font-bold underline text-slate-800">( .................................... )</p>
                             <p class="text-[10px] text-slate-500">NIP / ID: SARANA-YICB</p>
                         </div>
                         <div>
-                            <p class="text-slate-500 mb-1 border-b pb-1 inline-block">Mengetahui, Ketua Yayasan</p>
-                            <div class="h-16"></div>
+                            <p class="text-slate-500 mb-1 border-b pb-0.5 inline-block">Mengetahui, Ketua Yayasan</p>
+                            <div class="h-12"></div>
                             <p class="font-bold underline text-slate-800">( .................................... )</p>
                             <p class="text-[10px] text-slate-500">Yayasan Insan Cinta Bakti</p>
                         </div>
@@ -581,7 +626,7 @@
             if (!dateString) return '-';
             const date = new Date(dateString);
             const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
             const dayName = days[date.getDay()] || '';
             const dayNum = String(date.getDate()).padStart(2, '0');
@@ -774,7 +819,6 @@
 
                     <p class="text-xs text-slate-700 leading-relaxed font-normal">${log.kegiatan}</p>
 
-                    <!-- BADGES INFO TUKANG & DURASI -->
                     <div class="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
                         ${log.tukang && log.tukang !== '-' ? `
                             <span class="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1">
@@ -837,10 +881,10 @@
                 const dokPhotos = log.fotoDokumen ? log.fotoDokumen.split(',') : [];
                 let imgsHTML = '';
                 dokPhotos.forEach(u => {
-                    if (u.trim()) imgsHTML += `<img src="${u.trim()}" onclick="openLightbox('${u.trim()}')" class="w-12 h-12 object-contain bg-slate-900 rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition inline-block"> `;
+                    if (u.trim()) imgsHTML += `<img src="${u.trim()}" onclick="openLightbox('${u.trim()}')" class="print-img-thumb w-10 h-10 object-contain bg-slate-900 rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition inline-block"> `;
                 });
                 if (log.fotoSpeed) {
-                    imgsHTML += `<img src="${log.fotoSpeed}" onclick="openLightbox('${log.fotoSpeed}')" class="w-12 h-12 object-contain bg-slate-900 rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition inline-block">`;
+                    imgsHTML += `<img src="${log.fotoSpeed}" onclick="openLightbox('${log.fotoSpeed}')" class="print-img-thumb w-10 h-10 object-contain bg-slate-900 rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition inline-block">`;
                 }
 
                 tr.innerHTML = `
@@ -854,7 +898,7 @@
                     </td>
                     <td class="border-r border-slate-200 p-2 text-center font-bold text-emerald-600">${log.speed && log.speed !== '-' ? log.speed + ' Mbps' : '-'}</td>
                     <td class="p-2 text-center">
-                        <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                        <div class="flex items-center justify-center gap-1 flex-wrap">
                             ${imgsHTML || '-'}
                         </div>
                     </td>
