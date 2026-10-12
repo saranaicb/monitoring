@@ -18,7 +18,6 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* ATURAN CSS OTOMATIS FIT PAGE SAAT DICETAK/PDF */
         @media print {
             @page {
                 size: A4 landscape;
@@ -74,7 +73,7 @@
     <header class="no-print bg-slate-900 text-white sticky top-0 z-40 shadow-md">
         <div class="max-w-md mx-auto sm:max-w-7xl px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <!-- LOGO GAMBAR YICB -->
+                <!-- LOGO YICB -->
                 <img src="https://i.ibb.co/sJdMB87C/image.png" alt="Logo YICB" referrerpolicy="no-referrer" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-700">
                 <div>
                     <h1 class="text-xs sm:text-sm font-bold text-slate-100 tracking-tight leading-tight">YAYASAN INSAN CINTA BAKTI</h1>
@@ -501,18 +500,19 @@
             }
         });
 
-        // FUNGSI UNTUK MEMASTIKAN FORMAT URL GAMBAR IMGBB BISA TAMPIL DI HP
+        // PERBAIKAN UTAMA: FUNGSI UNTUK MERAPIKAN URL GAMBAR DARI IMGBB
         function fixImageUrl(url) {
             if (!url || typeof url !== 'string') return '';
             let cleanUrl = url.trim();
             if (!cleanUrl) return '';
-            // Ubah tautan ImgBB halaman umum ke tautan gambar langsung (i.ibb.co) jika perlu
-            if (cleanUrl.includes('ibb.co/') && !cleanUrl.includes('i.ibb.co/')) {
-                const parts = cleanUrl.split('ibb.co/');
-                if (parts[1]) {
-                    cleanUrl = 'https://i.ibb.co/' + parts[1] + '/image.png';
-                }
+
+            // Jika URL belum memiliki https:
+            if (cleanUrl.startsWith('//')) {
+                cleanUrl = 'https:' + cleanUrl;
+            } else if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+                cleanUrl = 'https://' + cleanUrl;
             }
+
             return cleanUrl;
         }
 
