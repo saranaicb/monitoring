@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitoring Unit - Yayasan Insan Cinta Bakti</title>
+    <title>Monitoring & Rencana Pekerjaan Unit - Yayasan Insan Cinta Bakti</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -108,7 +108,7 @@
                         <i data-lucide="shield-check" class="w-8 h-8"></i>
                     </div>
                     <h2 class="text-xl font-extrabold text-slate-900">Akses Masuk Sistem</h2>
-                    <p class="text-xs text-slate-500 mt-1">Yayasan Insan Cinta Bakti Monitoring Portal</p>
+                    <p class="text-xs text-slate-500 mt-1">Portal Monitoring & Rencana Pekerjaan YICB</p>
                 </div>
 
                 <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
@@ -187,20 +187,34 @@
                 </div>
             </div>
 
-            <!-- TAB 1: FORM INPUT MONITORING (ADMIN ONLY) -->
+            <!-- TAB 1: FORM INPUT MONITORING & RENCANA PEKERJAAN (ADMIN ONLY) -->
             <section id="tab-form" class="no-print space-y-4">
                 <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm">
+                    
+                    <!-- MODE SWITCHER (MONITORING vs RENCANA) -->
+                    <div class="flex items-center bg-slate-100 p-1 rounded-2xl mb-5 max-w-md mx-auto border border-slate-200">
+                        <button type="button" id="btn-mode-monitoring" onclick="switchFormMode('MONITORING')" class="flex-1 py-2 px-3 text-xs font-bold rounded-xl bg-white text-emerald-700 shadow-sm transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i> Monitoring Selesai
+                        </button>
+                        <button type="button" id="btn-mode-rencana" onclick="switchFormMode('RENCANA')" class="flex-1 py-2 px-3 text-xs font-bold rounded-xl text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="calendar-plus" class="w-4 h-4"></i> Rencana Pekerjaan
+                        </button>
+                    </div>
+
                     <div class="flex items-center gap-2 mb-4">
-                        <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <div id="form-header-icon" class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                             <i data-lucide="plus-circle" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-sm font-bold text-slate-800">Form Input Monitoring Baru</h3>
-                            <p class="text-[11px] text-slate-400">Data otomatis tersimpan ke Google Sheets secara online</p>
+                            <h3 id="form-header-title" class="text-sm font-bold text-slate-800">Form Input Monitoring Baru</h3>
+                            <p id="form-header-sub" class="text-[11px] text-slate-400">Data otomatis tersimpan ke Google Sheets secara online</p>
                         </div>
                     </div>
 
                     <form id="form-monitoring" onsubmit="handleSaveMonitoring(event)" class="space-y-3.5">
+                        <!-- Hidden Form Type -->
+                        <input type="hidden" id="input-type" value="MONITORING">
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Unit Yayasan *</label>
@@ -213,9 +227,19 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Laporan *</label>
+                                <label id="label-tanggal" class="block text-xs font-bold text-slate-700 mb-1">Tanggal Laporan *</label>
                                 <input type="date" id="input-tanggal" required class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                             </div>
+                        </div>
+
+                        <!-- STATUS SELECTION (Hanya untuk Rencana Pekerjaan) -->
+                        <div id="wrapper-status" class="hidden p-3 bg-indigo-50/60 rounded-2xl border border-indigo-100">
+                            <label class="block text-xs font-bold text-indigo-900 mb-1">Status Rencana Pekerjaan *</label>
+                            <select id="input-status" class="w-full px-3 py-2 text-xs rounded-xl border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white font-semibold text-indigo-800">
+                                <option value="Rencana">Rencana (Belum Dimulai)</option>
+                                <option value="Dalam Pengerjaan">Dalam Pengerjaan (Progress)</option>
+                                <option value="Selesai">Selesai (Siap Direalisasi)</option>
+                            </select>
                         </div>
 
                         <!-- DETAIL PEKERJAAN & TUKANG -->
@@ -232,11 +256,11 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Mulai</label>
+                                    <label id="label-tgl-mulai" class="block text-xs font-bold text-slate-700 mb-1">Tanggal Mulai</label>
                                     <input type="date" id="input-tgl-mulai" onchange="calculateDuration()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Selesai</label>
+                                    <label id="label-tgl-selesai" class="block text-xs font-bold text-slate-700 mb-1">Tanggal Selesai</label>
                                     <input type="date" id="input-tgl-selesai" onchange="calculateDuration()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
                                 </div>
                                 <div>
@@ -247,14 +271,14 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Uraian / Detail Kegiatan *</label>
+                            <label id="label-kegiatan" class="block text-xs font-bold text-slate-700 mb-1">Uraian / Detail Kegiatan *</label>
                             <textarea id="input-kegiatan" rows="2.5" required placeholder="Jelaskan kegiatan monitoring atau pengerjaan yang telah dilaksanakan..."
                                 class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Internet Speed (Mbps) <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                                <label id="label-speed" class="block text-xs font-bold text-slate-700 mb-1">Internet Speed (Mbps) <span class="text-slate-400 font-normal">(Opsional)</span></label>
                                 <div class="relative">
                                     <input type="number" id="input-speed" placeholder="Contoh: 50" min="0"
                                         class="w-full px-3 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
@@ -262,12 +286,12 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Dokumentasi <span class="text-slate-400 font-normal">(Multi/Opsional)</span></label>
+                                <label id="label-foto-dok" class="block text-xs font-bold text-slate-700 mb-1">Foto Dokumentasi <span class="text-slate-400 font-normal">(Multi/Opsional)</span></label>
                                 <input type="file" id="input-foto-dokumen" accept="image/*" multiple onchange="previewSelectedPhotos(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                                 <div id="preview-dokumen-container" class="flex flex-wrap gap-2 mt-2"></div>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Bukti Speedtest <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                                <label id="label-foto-speed" class="block text-xs font-bold text-slate-700 mb-1">Foto Speedtest / Acuan <span class="text-slate-400 font-normal">(Opsional)</span></label>
                                 <input type="file" id="input-foto-speed" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                             </div>
                         </div>
@@ -279,15 +303,25 @@
                 </div>
             </section>
 
-            <!-- TAB 2: RIWAYAT MONITORING -->
+            <!-- TAB 2: RIWAYAT MONITORING & RENCANA -->
             <section id="tab-history" class="no-print space-y-3">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
                     <div class="flex items-center gap-2">
                         <i data-lucide="history" class="w-4 h-4 text-emerald-600"></i>
-                        <span class="text-xs font-bold text-slate-800">Riwayat Laporan Realtime</span>
+                        <span class="text-xs font-bold text-slate-800">Riwayat Laporan & Rencana</span>
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- FILTER STATUS / TIPE -->
+                        <select id="filter-status-select" onchange="renderHistory()" class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-700">
+                            <option value="ALL">Semua Tipe Data</option>
+                            <option value="MONITORING">Monitoring Selesai</option>
+                            <option value="RENCANA_ALL">Semua Rencana Pekerjaan</option>
+                            <option value="Rencana">Status: Rencana</option>
+                            <option value="Dalam Pengerjaan">Status: Dalam Pengerjaan</option>
+                        </select>
+
+                        <!-- FILTER UNIT -->
                         <select id="filter-unit-select" onchange="renderHistory()" class="px-2.5 py-1.5 text-xs rounded-xl border border-slate-200 bg-white font-medium">
                             <option value="ALL">Semua Unit</option>
                             <option value="Cinta Wisata">Cinta Wisata</option>
@@ -295,6 +329,7 @@
                             <option value="Cinta Teknika">Cinta Teknika</option>
                             <option value="Poljan">Poljan</option>
                         </select>
+
                         <button onclick="fetchFromGoogleSheets()" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Refresh Data">
                             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                         </button>
@@ -325,7 +360,7 @@
                 <!-- FORMAL PRINTABLE REPORT PAPER -->
                 <div id="print-paper-container" class="bg-white rounded-2xl p-4 sm:p-8 border border-slate-300 shadow-lg text-slate-900 w-full max-w-5xl mx-auto">
                     <div class="text-center mb-4 border-b pb-3 border-slate-300">
-                        <h2 class="text-base sm:text-lg font-extrabold uppercase underline tracking-wider">LAPORAN HASIL MONITORING & PEKERJAAN UNIT</h2>
+                        <h2 class="text-base sm:text-lg font-extrabold uppercase underline tracking-wider">LAPORAN HASIL MONITORING & RENCANA PEKERJAAN UNIT</h2>
                         <p class="text-xs font-bold text-slate-700 mt-0.5">YAYASAN INSAN CINTA BAKTI</p>
                         <p id="report-period-text" class="text-[10px] text-slate-500 mt-0.5">Dicetak Secara Otomatis Melalui Sistem Portal Monitoring</p>
                     </div>
@@ -334,13 +369,14 @@
                         <table class="w-full text-left text-xs border-collapse">
                             <thead>
                                 <tr class="bg-slate-100 text-slate-800 font-bold uppercase text-[9px] sm:text-[10px]">
-                                    <th class="border-b border-r border-slate-300 p-2 text-center" style="width: 5%;">No</th>
-                                    <th class="border-b border-r border-slate-300 p-2" style="width: 14%;">Tanggal</th>
-                                    <th class="border-b border-r border-slate-300 p-2" style="width: 12%;">Unit</th>
-                                    <th class="border-b border-r border-slate-300 p-2" style="width: 28%;">Detail Kegiatan</th>
+                                    <th class="border-b border-r border-slate-300 p-2 text-center" style="width: 4%;">No</th>
+                                    <th class="border-b border-r border-slate-300 p-2 text-center" style="width: 10%;">Tipe/Status</th>
+                                    <th class="border-b border-r border-slate-300 p-2" style="width: 12%;">Tanggal</th>
+                                    <th class="border-b border-r border-slate-300 p-2" style="width: 11%;">Unit</th>
+                                    <th class="border-b border-r border-slate-300 p-2" style="width: 27%;">Detail Kegiatan</th>
                                     <th class="border-b border-r border-slate-300 p-2" style="width: 17%;">Tenaga Kerja / Durasi</th>
-                                    <th class="border-b border-r border-slate-300 p-2 text-center" style="width: 9%;">Speed</th>
-                                    <th class="border-b border-slate-300 p-2 text-center" style="width: 15%;">Foto Kegiatan</th>
+                                    <th class="border-b border-r border-slate-300 p-2 text-center" style="width: 7%;">Speed</th>
+                                    <th class="border-b border-slate-300 p-2 text-center" style="width: 12%;">Dokumentasi</th>
                                 </tr>
                             </thead>
                             <tbody id="report-table-body"></tbody>
@@ -491,6 +527,7 @@
         let monitoringLogs = JSON.parse(localStorage.getItem('YICB_LOGS')) || [];
         let currentUser = null;
         let activeTab = 'form';
+        let currentFormMode = 'MONITORING';
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -500,13 +537,11 @@
             }
         });
 
-        // PERBAIKAN UTAMA: FUNGSI UNTUK MERAPIKAN URL GAMBAR DARI IMGBB
         function fixImageUrl(url) {
             if (!url || typeof url !== 'string') return '';
             let cleanUrl = url.trim();
             if (!cleanUrl) return '';
 
-            // Jika URL belum memiliki https:
             if (cleanUrl.startsWith('//')) {
                 cleanUrl = 'https:' + cleanUrl;
             } else if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
@@ -525,6 +560,46 @@
                 }
                 return (b.timestamp || 0) - (a.timestamp || 0);
             });
+        }
+
+        function switchFormMode(mode) {
+            currentFormMode = mode;
+            document.getElementById('input-type').value = mode;
+
+            const btnMon = document.getElementById('btn-mode-monitoring');
+            const btnRen = document.getElementById('btn-mode-rencana');
+            const statusWrapper = document.getElementById('wrapper-status');
+
+            if (mode === 'MONITORING') {
+                btnMon.className = "flex-1 py-2 px-3 text-xs font-bold rounded-xl bg-white text-emerald-700 shadow-sm transition flex items-center justify-center gap-1.5";
+                btnRen.className = "flex-1 py-2 px-3 text-xs font-bold rounded-xl text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-1.5";
+                statusWrapper.classList.add('hidden');
+
+                document.getElementById('form-header-title').textContent = "Form Input Monitoring Baru";
+                document.getElementById('form-header-sub').textContent = "Data monitoring real-time/pengerjaan selesai tersimpan ke Google Sheets";
+                document.getElementById('label-tanggal').textContent = "Tanggal Laporan *";
+                document.getElementById('label-tgl-mulai').textContent = "Tanggal Mulai";
+                document.getElementById('label-tgl-selesai').textContent = "Tanggal Selesai";
+                document.getElementById('label-kegiatan').textContent = "Uraian / Detail Kegiatan *";
+                document.getElementById('label-speed').innerHTML = `Internet Speed (Mbps) <span class="text-slate-400 font-normal">(Opsional)</span>`;
+                document.getElementById('label-foto-dok').innerHTML = `Foto Dokumentasi <span class="text-slate-400 font-normal">(Multi/Opsional)</span>`;
+                document.getElementById('label-foto-speed').innerHTML = `Foto Bukti Speedtest <span class="text-slate-400 font-normal">(Opsional)</span>`;
+            } else {
+                btnRen.className = "flex-1 py-2 px-3 text-xs font-bold rounded-xl bg-indigo-600 text-white shadow-sm transition flex items-center justify-center gap-1.5";
+                btnMon.className = "flex-1 py-2 px-3 text-xs font-bold rounded-xl text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-1.5";
+                statusWrapper.classList.remove('hidden');
+
+                document.getElementById('form-header-title').textContent = "Form Rencana Pekerjaan Baru";
+                document.getElementById('form-header-sub').textContent = "Data usulan/rencana pekerjaan tersimpan ke Google Sheets";
+                document.getElementById('label-tanggal').textContent = "Tanggal Target Rencana *";
+                document.getElementById('label-tgl-mulai').textContent = "Rencana Tgl Mulai";
+                document.getElementById('label-tgl-selesai').textContent = "Rencana Tgl Selesai";
+                document.getElementById('label-kegiatan').textContent = "Uraian / Detail Rencana Pekerjaan *";
+                document.getElementById('label-speed').innerHTML = `Target Internet Speed (Mbps) <span class="text-slate-400 font-normal">(Opsional)</span>`;
+                document.getElementById('label-foto-dok').innerHTML = `Lampiran / Foto Pendukung <span class="text-slate-400 font-normal">(Multi/Opsional)</span>`;
+                document.getElementById('label-foto-speed').innerHTML = `Foto Referensi / Denah <span class="text-slate-400 font-normal">(Opsional)</span>`;
+            }
+            lucide.createIcons();
         }
 
         function calculateDuration() {
@@ -586,10 +661,16 @@
                                 fotoDokumen: item[9] || '',
                                 fotoSpeed: item[10] || '',
                                 created_by: item[11] || '',
-                                timestamp: item[12] || Date.now()
+                                timestamp: item[12] || Date.now(),
+                                type: item[13] || 'MONITORING',
+                                status: item[14] || (item[13] === 'RENCANA' ? 'Rencana' : 'Selesai')
                             };
                         }
-                        return item;
+                        return {
+                            ...item,
+                            type: item.type || 'MONITORING',
+                            status: item.status || (item.type === 'RENCANA' ? 'Rencana' : 'Selesai')
+                        };
                     });
 
                     monitoringLogs = sortLogsByDate(parsedLogs);
@@ -740,6 +821,8 @@
             lucide.createIcons();
 
             try {
+                const type = document.getElementById('input-type').value;
+                const status = type === 'RENCANA' ? document.getElementById('input-status').value : 'Selesai';
                 const unit = document.getElementById('input-unit').value;
                 const tanggal = document.getElementById('input-tanggal').value;
                 const tukang = document.getElementById('input-tukang').value.trim() || "-";
@@ -780,7 +863,9 @@
                     fotoDokumen: urlDokumenList.length > 0 ? urlDokumenList.join(',') : '',
                     fotoSpeed: urlSpeed || '',
                     created_by: currentUser.username,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    type: type,
+                    status: status
                 };
 
                 monitoringLogs.unshift(newLogData);
@@ -797,7 +882,7 @@
                 document.getElementById('form-monitoring').reset();
                 document.getElementById('preview-dokumen-container').innerHTML = '';
                 document.getElementById('input-durasi').value = '';
-                alert('Laporan Berhasil Disimpan!');
+                alert(type === 'RENCANA' ? 'Rencana Pekerjaan Berhasil Disimpan!' : 'Laporan Monitoring Berhasil Disimpan!');
                 switchTab('history');
             } catch (err) {
                 alert('Gagal menyimpan: ' + err.message);
@@ -808,13 +893,56 @@
             }
         }
 
+        async function convertRencanaToMonitoring(idStr) {
+            if (!currentUser || currentUser.role !== 'ADMIN') return;
+
+            const targetIndex = monitoringLogs.findIndex(l => l.id === idStr);
+            if (targetIndex === -1) return;
+
+            if (confirm('Jadikan item ini sebagai Laporan Monitoring Realtime (Selesai)?')) {
+                monitoringLogs[targetIndex].type = 'MONITORING';
+                monitoringLogs[targetIndex].status = 'Selesai';
+                monitoringLogs[targetIndex].tanggal = new Date().toISOString().split('T')[0];
+
+                localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
+                renderHistory();
+                renderReportTable();
+
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        action: "UPDATE_STATUS", 
+                        id: idStr, 
+                        type: 'MONITORING', 
+                        status: 'Selesai',
+                        tanggal: monitoringLogs[targetIndex].tanggal
+                    })
+                }).catch(err => console.warn("Convert bg err:", err));
+
+                alert('Item berhasil dikonversi menjadi Monitoring Realtime (Selesai)!');
+            }
+        }
+
         function renderHistory() {
             const container = document.getElementById('history-feed');
-            const selectedFilter = document.getElementById('filter-unit-select').value;
+            const selectedUnit = document.getElementById('filter-unit-select').value;
+            const selectedStatus = document.getElementById('filter-status-select').value;
 
-            const filteredLogs = selectedFilter === 'ALL'
-                ? monitoringLogs
-                : monitoringLogs.filter(l => l.unit === selectedFilter);
+            let filteredLogs = monitoringLogs;
+
+            if (selectedUnit !== 'ALL') {
+                filteredLogs = filteredLogs.filter(l => l.unit === selectedUnit);
+            }
+
+            if (selectedStatus === 'MONITORING') {
+                filteredLogs = filteredLogs.filter(l => l.type === 'MONITORING');
+            } else if (selectedStatus === 'RENCANA_ALL') {
+                filteredLogs = filteredLogs.filter(l => l.type === 'RENCANA');
+            } else if (selectedStatus !== 'ALL') {
+                filteredLogs = filteredLogs.filter(l => l.status === selectedStatus);
+            }
 
             container.innerHTML = '';
 
@@ -822,7 +950,7 @@
                 container.innerHTML = `
                     <div class="bg-white rounded-2xl p-8 text-center text-slate-400 border border-slate-200 shadow-xs">
                         <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
-                        <p class="text-xs font-semibold">Belum ada riwayat laporan monitoring</p>
+                        <p class="text-xs font-semibold">Belum ada riwayat laporan atau rencana pekerjaan</p>
                     </div>
                 `;
                 lucide.createIcons();
@@ -831,7 +959,7 @@
 
             filteredLogs.forEach(log => {
                 const card = document.createElement('div');
-                card.className = "bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-3";
+                card.className = "bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-3 relative overflow-hidden";
 
                 const canDelete = currentUser && currentUser.role === 'ADMIN';
                 const dokPhotos = log.fotoDokumen ? log.fotoDokumen.split(',') : [];
@@ -845,7 +973,7 @@
                                 <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center min-h-[160px]" onclick="openLightbox('${fixedUrl}')">
                                     <img src="${fixedUrl}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto max-h-60 object-contain rounded-xl transition transform group-hover:scale-105">
                                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2.5 pointer-events-none">
-                                        <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Dokumentasi ${dokPhotos.length > 1 ? '#' + (idx + 1) : ''}</span>
+                                        <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Lampiran ${dokPhotos.length > 1 ? '#' + (idx + 1) : ''}</span>
                                         <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
                                     </div>
                                 </div>
@@ -861,7 +989,7 @@
                             <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-950 flex items-center justify-center min-h-[160px]" onclick="openLightbox('${fixedSpeedUrl}')">
                                 <img src="${fixedSpeedUrl}" referrerpolicy="no-referrer" loading="lazy" class="w-full h-auto max-h-60 object-contain rounded-xl transition transform group-hover:scale-105">
                                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex items-end justify-between p-2.5 pointer-events-none">
-                                    <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Bukti Speedtest</span>
+                                    <span class="text-white text-[10px] font-bold bg-slate-900/60 px-2 py-0.5 rounded-md backdrop-blur-xs">Speedtest / Denah</span>
                                     <i data-lucide="maximize-2" class="w-4 h-4 text-white"></i>
                                 </div>
                             </div>
@@ -869,17 +997,39 @@
                     }
                 }
 
+                // Render Badge Tipe / Status
+                let statusBadge = '';
+                if (log.type === 'RENCANA') {
+                    if (log.status === 'Dalam Pengerjaan') {
+                        statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1"><i data-lucide="loader" class="w-3 h-3 animate-spin text-amber-600"></i> Dalam Pengerjaan</span>`;
+                    } else if (log.status === 'Selesai') {
+                        statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-600"></i> Rencana Selesai</span>`;
+                    } else {
+                        statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-100 text-indigo-800 border border-indigo-200 flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3 text-indigo-600"></i> Rencana Pekerjaan</span>`;
+                    }
+                } else {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3 text-emerald-600"></i> Monitoring Realtime</span>`;
+                }
+
                 card.innerHTML = `
-                    <div class="flex items-center justify-between border-b pb-2.5">
-                        <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center justify-between border-b pb-2.5 gap-2">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            ${statusBadge}
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${getUnitBadgeColor(log.unit)}">${log.unit}</span>
                             <span class="text-xs font-bold text-slate-700">${formatDateWithDay(log.tanggal)}</span>
                         </div>
-                        ${canDelete ? `
-                            <button type="button" onclick="deleteLog('${log.id}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 flex items-center gap-1 text-[11px] font-bold">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
-                            </button>
-                        ` : ''}
+                        <div class="flex items-center gap-1.5">
+                            ${(canDelete && log.type === 'RENCANA') ? `
+                                <button type="button" onclick="convertRencanaToMonitoring('${log.id}')" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl transition border border-indigo-200 text-[10px] font-bold flex items-center gap-1">
+                                    <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i> Realisasi
+                                </button>
+                            ` : ''}
+                            ${canDelete ? `
+                                <button type="button" onclick="deleteLog('${log.id}')" class="p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 flex items-center gap-1 text-[10px] font-bold">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
 
                     <p class="text-xs text-slate-700 leading-relaxed font-normal">${log.kegiatan}</p>
@@ -892,7 +1042,7 @@
                         ` : ''}
                         ${(log.tglMulai && log.tglMulai !== '-') ? `
                             <span class="bg-indigo-50 text-indigo-800 border border-indigo-200 px-2.5 py-1 rounded-xl font-medium flex items-center gap-1">
-                                <i data-lucide="calendar-range" class="w-3 h-3 text-indigo-600"></i> ${formatDateWithDay(log.tglMulai)} s/d${formatDateWithDay(log.tglSelesai)}
+                                <i data-lucide="calendar-range" class="w-3 h-3 text-indigo-600"></i> ${formatDateWithDay(log.tglMulai)} s/d ${formatDateWithDay(log.tglSelesai)}
                             </span>
                         ` : ''}
                         ${log.durasi && log.durasi !== '-' ? `
@@ -920,7 +1070,7 @@
         async function deleteLog(idStr) {
             if (!currentUser || currentUser.role !== 'ADMIN') return;
 
-            if (confirm('Apakah Anda yakin ingin menghapus laporan ini?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
                 monitoringLogs = monitoringLogs.filter(l => l.id !== idStr);
                 localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
                 renderHistory();
@@ -940,7 +1090,7 @@
             tbody.innerHTML = '';
 
             if (monitoringLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-400">Tidak ada data untuk dicetak</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-slate-400">Tidak ada data untuk dicetak</td></tr>`;
                 return;
             }
 
@@ -959,8 +1109,13 @@
                     if (fixedSpeedUrl) imgsHTML += `<img src="${fixedSpeedUrl}" referrerpolicy="no-referrer" onclick="openLightbox('${fixedSpeedUrl}')" class="print-img-thumb w-10 h-10 object-contain bg-slate-900 rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition inline-block">`;
                 }
 
+                const statusTag = log.type === 'RENCANA' 
+                    ? `<span class="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-indigo-100 text-indigo-800 uppercase">${log.status || 'RENCANA'}</span>`
+                    : `<span class="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-emerald-100 text-emerald-800 uppercase">MONITORING</span>`;
+
                 tr.innerHTML = `
                     <td class="border-r border-slate-200 p-2 text-center font-bold text-slate-500">${idx + 1}</td>
+                    <td class="border-r border-slate-200 p-2 text-center">${statusTag}</td>
                     <td class="border-r border-slate-200 p-2 font-semibold text-slate-700">${formatDateWithDay(log.tanggal)}</td>
                     <td class="border-r border-slate-200 p-2 font-bold text-slate-800">${log.unit}</td>
                     <td class="border-r border-slate-200 p-2 leading-relaxed text-slate-600">${log.kegiatan}</td>
@@ -982,18 +1137,18 @@
 
         function exportExcel() {
             if (monitoringLogs.length === 0) return;
-            let csvContent = "data:text/csv;charset=utf-8,No,Tanggal,Unit,Detail Kegiatan,Tenaga Kerja,Tgl Mulai,Tgl Selesai,Durasi,Speed (Mbps)\n";
+            let csvContent = "data:text/csv;charset=utf-8,No,Tipe,Status,Tanggal,Unit,Detail Kegiatan,Tenaga Kerja,Tgl Mulai,Tgl Selesai,Durasi,Speed (Mbps)\n";
             monitoringLogs.forEach((l, i) => {
                 const cleanKegiatan = `"${l.kegiatan.replace(/"/g, '""')}"`;
                 const cleanTukang = `"${(l.tukang || '-').replace(/"/g, '""')}"`;
                 const spd = l.speed && l.speed !== '-' ? l.speed : '-';
-                csvContent += `${i + 1},"${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},${cleanTukang},"${formatDateWithDay(l.tglMulai)}","${formatDateWithDay(l.tglSelesai)}","${l.durasi || '-'}","${spd}"\n`;
+                csvContent += `${i + 1},"${l.type || 'MONITORING'}","${l.status || 'Selesai'}","${formatDateWithDay(l.tanggal)}","${l.unit}",${cleanKegiatan},${cleanTukang},"${formatDateWithDay(l.tglMulai)}","${formatDateWithDay(l.tglSelesai)}","${l.durasi || '-'}","${spd}"\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Laporan_Monitoring_YICB_${Date.now()}.csv`);
+            link.setAttribute("download", `Laporan_YICB_${Date.now()}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
