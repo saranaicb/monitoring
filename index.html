@@ -236,9 +236,8 @@
                         <div id="wrapper-status" class="hidden p-3 bg-indigo-50/60 rounded-2xl border border-indigo-100">
                             <label class="block text-xs font-bold text-indigo-900 mb-1">Status Rencana Pekerjaan *</label>
                             <select id="input-status" class="w-full px-3 py-2 text-xs rounded-xl border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white font-semibold text-indigo-800">
-                                <option value="Rencana">Rencana (Belum Dimulai)</option>
+                                <option value="Rencana" selected>Rencana (Belum Dimulai)</option>
                                 <option value="Dalam Pengerjaan">Dalam Pengerjaan (Progress)</option>
-                                <option value="Selesai">Selesai (Siap Direalisasi)</option>
                             </select>
                         </div>
 
@@ -893,6 +892,33 @@
             }
         }
 
+        function updateStatusRencana(idStr, statusBaru) {
+            if (!currentUser || currentUser.role !== 'ADMIN') return;
+
+            const targetIndex = monitoringLogs.findIndex(l => l.id === idStr);
+            if (targetIndex === -1) return;
+
+            monitoringLogs[targetIndex].status = statusBaru;
+
+            localStorage.setItem('YICB_LOGS', JSON.stringify(monitoringLogs));
+            renderHistory();
+            renderReportTable();
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    action: "UPDATE_STATUS", 
+                    id: idStr, 
+                    type: 'RENCANA', 
+                    status: statusBaru
+                })
+            }).catch(err => console.warn("Update status bg err:", err));
+
+            alert(`Status pekerjaan berhasil diperbarui menjadi: ${statusBaru}`);
+        }
+
         async function convertRencanaToMonitoring(idStr) {
             if (!currentUser || currentUser.role !== 'ADMIN') return;
 
@@ -1020,9 +1046,16 @@
                         </div>
                         <div class="flex items-center gap-1.5">
                             ${(canDelete && log.type === 'RENCANA') ? `
-                                <button type="button" onclick="convertRencanaToMonitoring('${log.id}')" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl transition border border-indigo-200 text-[10px] font-bold flex items-center gap-1">
-                                    <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i> Realisasi
-                                </button>
+                                ${log.status === 'Rencana' ? `
+                                    <button type="button" onclick="updateStatusRencana('${log.id}', 'Dalam Pengerjaan')" class="p-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl transition border border-amber-200 text-[10px] font-bold flex items-center gap-1">
+                                        <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> Proses Pekerjaan
+                                    </button>
+                                ` : ''}
+                                ${log.status === 'Dalam Pengerjaan' ? `
+                                    <button type="button" onclick="convertRencanaToMonitoring('${log.id}')" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl transition border border-emerald-200 text-[10px] font-bold flex items-center gap-1">
+                                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Tandai Selesai
+                                    </button>
+                                ` : ''}
                             ` : ''}
                             ${canDelete ? `
                                 <button type="button" onclick="deleteLog('${log.id}')" class="p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-200 flex items-center gap-1 text-[10px] font-bold">
